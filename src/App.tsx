@@ -59,6 +59,8 @@ const App: React.FC = () => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chat, setChat] = useState<Chat | null>(null);
   const [isScaffoldModalOpen, setIsScaffoldModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     setChatHistory([
