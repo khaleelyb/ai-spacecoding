@@ -3,9 +3,8 @@ import { VibeEntry, ChatMessage, AIMode } from './types';
 import FileTree from './components/FileTree';
 import Editor from './components/Editor';
 import ChatPanel from './components/ChatPanel';
-import { runChat, analyzeCode, refactorCodeWithThinking, scaffoldProject } from './services/geminiService';
+import { runChat, analyzeCode, refactorCodeWithThinking } from './services/geminiService';
 import { Chat } from '@google/genai';
-import ScaffoldModal from './components/ScaffoldModal';
 
 const initialFiles: VibeEntry[] = [
   {
@@ -34,7 +33,6 @@ This is a demo of an AI-powered code editor.
 
 **Features:**
 
-*   AI Scaffolding (try the "Scaffold with AI" button!)
 *   File and Folder Management
 *   Code Editor
 *   Live Markdown Preview
@@ -59,7 +57,6 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chat, setChat] = useState<Chat | null>(null);
-  const [isScaffoldModalOpen, setIsScaffoldModalOpen] = useState(false);
 
   useEffect(() => {
     setChatHistory([
@@ -78,6 +75,8 @@ const App: React.FC = () => {
   };
 
   const handleCreateEntry = (path: string, type: 'file' | 'folder') => {
+    if (!path || path.trim() === '') return;
+    
     if (entries.some(e => e.id === path)) {
       alert(`An entry with the path "${path}" already exists.`);
       return;
@@ -125,7 +124,7 @@ const App: React.FC = () => {
 
     try {
       const { chatInstance, response } = await runChat(chat, message);
-      if (!chat) setChat(chatInstance); // Save chat instance for conversation history
+      if (!chat) setChat(chatInstance);
       const modelMessage: ChatMessage = { role: 'model', content: response };
       setChatHistory(prev => [...prev, modelMessage]);
     } catch (error) {
@@ -174,8 +173,14 @@ const App: React.FC = () => {
         entries={entries} 
         activeId={activeId} 
         onSelect={handleSelect}
-        onNewFile={() => handleCreateEntry(prompt('Enter file name:') || '', 'file')}
-        onNewFolder={() => handleCreateEntry(prompt('Enter folder name:') || '', 'folder')}
+        onNewFile={() => {
+          const fileName = prompt('Enter file name:');
+          if (fileName) handleCreateEntry(fileName, 'file');
+        }}
+        onNewFolder={() => {
+          const folderName = prompt('Enter folder name:');
+          if (folderName) handleCreateEntry(folderName, 'folder');
+        }}
         onFileUpload={handleFileUpload}
       />
       <main className="flex-1 flex flex-col min-w-0 bg-gray-50">
@@ -193,24 +198,6 @@ const App: React.FC = () => {
             isLoading={isAiLoading}
         />
       </aside>
-      {isScaffoldModalOpen && (
-        <ScaffoldModal
-          onClose={() => setIsScaffoldModalOpen(false)}
-          onScaffold={async (prompt) => {
-            setIsScaffoldModalOpen(false);
-            setIsAiLoading(true);
-            try {
-              const scaffolded = await scaffoldProject(prompt);
-              setEntries(scaffolded);
-            } catch (error) {
-              console.error('Scaffold error:', error);
-              alert('An error occurred during scaffolding. Please check the console.');
-            } finally {
-              setIsAiLoading(false);
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
