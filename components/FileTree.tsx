@@ -142,32 +142,32 @@ const FileTree: React.FC<FileTreeProps> = ({
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h1 className="text-lg font-semibold text-gray-900">AI Studio</h1>
+    <div className="w-full h-full bg-white border-r border-gray-200 flex flex-col shadow-sm">
+      <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <h1 className="text-base sm:text-lg font-semibold text-gray-900">AI Studio</h1>
       </div>
-      <div className="p-3 space-y-2 bg-gray-50 border-b border-gray-200">
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={onNewFile} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1.5 border border-gray-200 shadow-sm hover:shadow">
-            <FileIcon className="w-4 h-4 text-gray-600" />
-            <span>New File</span>
+      <div className="p-2 sm:p-3 space-y-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+          <button onClick={onNewFile} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-1.5 border border-gray-200 shadow-sm hover:shadow">
+            <FileIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+            <span className="hidden xs:inline">New File</span>
           </button>
-          <button onClick={onNewFolder} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1.5 border border-gray-200 shadow-sm hover:shadow">
-            <FolderIcon className="w-4 h-4 text-gray-600" />
-            <span>New Folder</span>
+          <button onClick={onNewFolder} className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-1.5 border border-gray-200 shadow-sm hover:shadow">
+            <FolderIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+            <span className="hidden xs:inline">New Folder</span>
           </button>
         </div>
-        <button onClick={handleUploadClick} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md">
-          <UploadIcon className="w-4 h-4" />
-          <span>Upload File/Image</span>
+        <button onClick={handleUploadClick} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1.5 sm:space-x-2 shadow-sm hover:shadow-md">
+          <UploadIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span>Upload</span>
         </button>
-        <button onClick={onScaffold} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 px-3 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg">
-          <MagicIcon className="w-4 h-4" />
+        <button onClick={onScaffold} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-xs transition-all duration-200 flex items-center justify-center space-x-1.5 sm:space-x-2 shadow-md hover:shadow-lg">
+          <MagicIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
           <span>Scaffold with AI</span>
         </button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
       </div>
-      <nav className="flex-1 p-2 overflow-y-auto bg-white">
+      <nav className="flex-1 p-1.5 sm:p-2 overflow-y-auto bg-white">
         <ul>
           {tree.map(node => (
             <TreeItem 
