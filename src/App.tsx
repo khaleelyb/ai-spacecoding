@@ -3,7 +3,8 @@ import { VibeEntry, ChatMessage, AIMode } from './types';
 import FileTree from './components/FileTree';
 import Editor from './components/Editor';
 import ChatPanel from './components/ChatPanel';
-import { runChat, analyzeCode, refactorCodeWithThinking } from './services/geminiService';
+import ScaffoldModal from './components/ScaffoldModal';
+import { runChat, analyzeCode, refactorCodeWithThinking, scaffoldProject } from './services/geminiService';
 import { Chat } from '@google/genai';
 
 const initialFiles: VibeEntry[] = [
@@ -57,6 +58,7 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chat, setChat] = useState<Chat | null>(null);
+  const [isScaffoldModalOpen, setIsScaffoldModalOpen] = useState(false);
 
   useEffect(() => {
     setChatHistory([
@@ -165,6 +167,68 @@ const App: React.FC = () => {
       }
   }, [activeId]);
 
+  const handleScaffold = async (prompt: string) => {
+    setIsScaffoldModalOpen(false);
+    setIsAiLoading(true);
+    
+    try {
+      const scaffoldedFiles = await scaffoldProject(prompt);
+      
+      // Convert scaffolded files to VibeEntry format
+      const newEntries: VibeEntry[] = scaffoldedFiles.map(file => {
+        const pathParts = file.path.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+        const extension = fileName.split('.').pop() || 'text';
+        
+        return {
+          id: file.path,
+          name: fileName,
+          content: file.content,
+          language: extension,
+          type: 'file' as const,
+        };
+      });
+      
+      // Create folder entries for all directories in the paths
+      const folderSet = new Set<string>();
+      scaffoldedFiles.forEach(file => {
+        const pathParts = file.path.split('/');
+        pathParts.pop(); // Remove filename
+        
+        let currentPath = '';
+        pathParts.forEach(part => {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          folderSet.add(currentPath);
+        });
+      });
+      
+      const folderEntries: VibeEntry[] = Array.from(folderSet).map(folderPath => ({
+        id: folderPath,
+        name: folderPath.split('/').pop() || folderPath,
+        type: 'folder' as const,
+      }));
+      
+      // Merge with existing entries, avoiding duplicates
+      const allNewEntries = [...folderEntries, ...newEntries];
+      const existingIds = new Set(entries.map(e => e.id));
+      const uniqueNewEntries = allNewEntries.filter(e => !existingIds.has(e.id));
+      
+      setEntries(prev => [...prev, ...uniqueNewEntries]);
+      
+      // Set the first new file as active
+      if (newEntries.length > 0) {
+        setActiveId(newEntries[0].id);
+      }
+      
+      alert(`Successfully created ${newEntries.length} files!`);
+    } catch (error) {
+      console.error('Scaffold error:', error);
+      alert('An error occurred during scaffolding. Please check the console and try again.');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   const activeEntry = entries.find(f => f.id === activeId) || null;
 
   return (
@@ -182,6 +246,7 @@ const App: React.FC = () => {
           if (folderName) handleCreateEntry(folderName, 'folder');
         }}
         onFileUpload={handleFileUpload}
+        onScaffold={() => setIsScaffoldModalOpen(true)}
       />
       <main className="flex-1 flex flex-col min-w-0 bg-gray-50">
         <Editor 
@@ -198,6 +263,13 @@ const App: React.FC = () => {
             isLoading={isAiLoading}
         />
       </aside>
+      
+      <ScaffoldModal
+        isOpen={isScaffoldModalOpen}
+        onClose={() => setIsScaffoldModalOpen(false)}
+        onScaffold={handleScaffold}
+        isLoading={isAiLoading}
+      />
     </div>
   );
 };
